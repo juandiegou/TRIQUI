@@ -55,16 +55,12 @@ public class CyclicA extends CyclicBehaviour {
             ACLMessage response;
             try {
                 response = this.agent.blockingReceive();
-                //String data = response.getContent();
-                //System.out.println(data);
-                //System.out.println(response.getContent());
                 this.agent.board = (Board) gson.fromJson(response.getContent(), Board.class);
                 printBoard();
                 // calcular movimiento nuevo
                 //this.getMove();
                 message = new ACLMessage(ACLMessage.INFORM);
                 message.setContent((String) gson.toJson(this.agent.board, Board.class));
-                //response.setContent("hola mundo");
                 message.addReceiver(response.getSender());
                 this.agent.send(message);
             } catch (Exception e) {
@@ -86,6 +82,7 @@ public class CyclicA extends CyclicBehaviour {
     public int[] getMove() {
         // int [] bestMove={0,0}
         int[][] maxim = getMaxim();
+        int valueBestMove =0;
 
         for (int i = 0; i < maxim.length; i++) {
             for (int j = 0; j < maxim[i].length; j++) {
@@ -93,14 +90,24 @@ public class CyclicA extends CyclicBehaviour {
             }
             System.out.println("");
         }
-        // for(int candidate : maxim){
-        // validateCandidate(candidate, bestMove);
-        // }
-        // return bestMove;
+        /**for(int []candidate : maxim){
+            validateCandidate(candidate, bestMove);
+        }
+        return bestMove;**/
+        for (int i = 0; i < maxim.length; i++) {
+            for (int j = 0; j < maxim[i].length; j++) {
+                
+                if(maxim[i][j]<valueBestMove){
+                    valueBestMove=maxim[i][j];
+                }
+                if(maxim[i][j]==valueBestMove){
+                    validateCandidate(valueBestMove, maxim);
+                }
+            }
         return new int[] {};
     }
 
-    private void validateCandidate(int candidate, int[] best) {
+    private void validateCandidate(int candidate, int[][] best) {
         int value;
         switch (candidate) {
             case 0:

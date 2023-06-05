@@ -29,9 +29,11 @@ public class Board implements Serializable {
             game[i][j] = type;
             if (type == 'X') {
                 cost[i][j] = 1;
+                game[i][j] = 'X';
             }
             if (type == 'O') {
                 cost[i][j] = -1;
+                game[i][j] = 'O';
             }
         }
     }
