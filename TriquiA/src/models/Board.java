@@ -78,12 +78,14 @@ public class Board implements Serializable {
                 countO++;
             }
         }
-        for (int j = game.length; j > 0; j--) {
+        for (int j = game.length; j >=0; j++) {
             if (game[j][j] == 'X') {
                 countX++;
+                j--;
             }
             if (game[j][j] == 'O') {
                 countO++;
+                j--;
             }
         }
         return countX == 3 | countO == 3;

@@ -28,6 +28,7 @@ public class CyclicA extends CyclicBehaviour {
         this.idString = idString;
         this.address = address;
     }
+    
 
     @Override
     public void action() {
@@ -54,15 +55,18 @@ public class CyclicA extends CyclicBehaviour {
         } else {
             ACLMessage response;
             try {
+                this.agent.doWait(200);
                 response = this.agent.blockingReceive();
                 this.agent.board = (Board) gson.fromJson(response.getContent(), Board.class);
                 printBoard();
                 // calcular movimiento nuevo
-                //this.getMove();
+                this.getMove();
+                
                 message = new ACLMessage(ACLMessage.INFORM);
                 message.setContent((String) gson.toJson(this.agent.board, Board.class));
                 message.addReceiver(response.getSender());
                 this.agent.send(message);
+                printBoard2();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -79,7 +83,7 @@ public class CyclicA extends CyclicBehaviour {
         //return new int[] { 1, 1 };
     }
 
-    public int[] getMove() {
+    public void getMove() {
         // int [] bestMove={0,0}
         int[][] maxim = getMaxim();
         int valueBestMove =0;
@@ -97,17 +101,16 @@ public class CyclicA extends CyclicBehaviour {
         for (int i = 0; i < maxim.length; i++) {
             for (int j = 0; j < maxim[i].length; j++) {
                 
-                if(maxim[i][j]<valueBestMove){
+                if(maxim[i][j]>valueBestMove){
                     valueBestMove=maxim[i][j];
-                }
-                if(maxim[i][j]==valueBestMove){
-                    validateCandidate(valueBestMove, maxim);
+                    this.agent.board.setMark(i, j, 'X');
                 }
             }
-        return new int[] {};
+        }
     }
 
     private void validateCandidate(int candidate, int[][] best) {
+
         int value;
         switch (candidate) {
             case 0:
@@ -135,6 +138,7 @@ public class CyclicA extends CyclicBehaviour {
 
                 break;
         }
+    
     }
 
     private int validateRow(int index) {
@@ -202,6 +206,16 @@ public class CyclicA extends CyclicBehaviour {
         System.out.println("\n-------------------------------------------------");
         for (int[] element : this.agent.board.cost) {
             for (int value : element) {
+                System.out.print("|\t" + value + "\t|");
+            }
+            System.out.println("\n-------------------------------------------------");
+        }
+    }
+
+    public void printBoard2() {
+        System.out.println("\n-------------------------------------------------");
+        for (char[] element : this.agent.board.game) {
+            for (char value : element) {
                 System.out.print("|\t" + value + "\t|");
             }
             System.out.println("\n-------------------------------------------------");
