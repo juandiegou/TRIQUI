@@ -13,9 +13,8 @@ public class Main {
         
         Profile profile = new ProfileImpl("localhost",1099,"Main-Container",true);    
         try {
-            //new Object[]{'R'}
             System.out.println(profile);
-            AgentController agentController = runtime.createMainContainer(profile).createNewAgent("A", "models.AMachine",null );
+            AgentController agentController = runtime.createMainContainer(profile).createNewAgent("A", "models.AMachine",new Object[]{"A"} );
             agentController.start();
             System.out.println("agentController");
         } catch (Exception ex) {

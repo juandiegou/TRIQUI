@@ -9,10 +9,10 @@ public class AMachine extends Agent{
     public Board board;
 
     protected void setup(){
-        //char type = (char) getArguments()[0];
+        String type = (String) getArguments()[0];
         //System.out.println(type);
         board= new Board();
-        addBehaviour(new CyclicA(this,"B@192.168.121.54:1099/JADE","http://192.168.121.54:7778/acc", "R"));
+        addBehaviour(new CyclicA(this,"B@192.168.121.54:1099/JADE","http://192.168.121.54:7778/acc", type));
     }
 
 

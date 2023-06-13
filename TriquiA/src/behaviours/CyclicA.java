@@ -12,6 +12,7 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.*;
 import models.AMachine;
 import models.Board;
+import models.Poda;
 
 public class CyclicA extends CyclicBehaviour {
 
@@ -23,6 +24,7 @@ public class CyclicA extends CyclicBehaviour {
     AMachine agent;
     private ACLMessage message;
     private String type;
+    private Poda alphaBeta;
 
     public CyclicA(Agent agent, String idString, String address, String type) {
         super(agent);
@@ -31,6 +33,7 @@ public class CyclicA extends CyclicBehaviour {
         this.idString = idString;
         this.address = address;
         this.type = type;
+        this.alphaBeta = new Poda(this.agent.board.game.length);
     }
 
     @Override
@@ -54,7 +57,12 @@ public class CyclicA extends CyclicBehaviour {
                 if(this.agent.board.checkBoard()){
                     this.agent.removeBehaviour(this);
                 }else{
-                    this.getMove();
+                    if(type.equals("R")){
+                        this.getMove();
+                    }else{
+                        int[] position = this.alphaBeta.minimax(this.agent.board.cost,1);
+                        this.agent.board.setMark(position[0], position[1], 'X');
+                    }
                     this.sendMessage();
                     //this.agent.send(message);
                     printBoard2();
