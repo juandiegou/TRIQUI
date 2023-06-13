@@ -8,12 +8,10 @@ import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.*;
-import java.math.MathContext;
 import models.BMachine;
 import models.Board;
 
 public class CyclicB extends CyclicBehaviour {
-
     private Gson gson;
     String idString;
     String address;
@@ -34,32 +32,47 @@ public class CyclicB extends CyclicBehaviour {
     public void action() {
 
         ACLMessage response;
+
         try {
-            //this.agent.doWait(800);
+            this.agent.doWait(800);
             response = this.agent.blockingReceive();
             String data = response.getContent();
             this.agent.board = gson.fromJson(data, Board.class);
-            printBoard();
+            //Validacion
+            if(this.agent.board.checkBoard()){
+                this.agent.removeBehaviour(this);
+            }
+            else{
+            //Movimiento aleatorio nuevo
             int randomRow = new Random().nextInt(3);
             int randomCol = new Random().nextInt(3);
-
-            while (!this.agent.board.validateMark(randomCol, randomCol)) {
+            //Valida que el random este entre los limites y no este marcado
+            while (!this.agent.board.validateMark(randomRow, randomCol)) {
                 randomRow = new Random().nextInt(3);
                 randomCol = new Random().nextInt(3);
             }
-            this.agent.board.setMark(randomCol, randomCol, 'O');
+            //Se marca la posición
+            this.agent.board.setMark(randomRow, randomCol, 'O');
+             printBoard();
+            }
             
-            //this.getMove();
-            message = new ACLMessage(ACLMessage.INFORM);
-            message.setContent((String) gson.toJson(this.agent.board, Board.class));
-            message.addReceiver(response.getSender());
-            this.agent.send(message);
-            printBoard2();
+            if(!this.agent.board.checkBoard()){
+                message = new ACLMessage(ACLMessage.INFORM);
+                message.setContent((String) gson.toJson(this.agent.board, Board.class));
+                message.addReceiver(response.getSender());
+                this.agent.send(message);
+            }
+            else{
+                this.agent.removeBehaviour(this);
+            }
+            
+            
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
+    
+    
     /**
      * @return retorna un monimiento aleatorio con la matriz vacia.
      */
@@ -85,36 +98,6 @@ public class CyclicB extends CyclicBehaviour {
         // }
         //return bestMove;
         return new int[]{};
-    }
-
-    private void validateCandidate(int candidate, int[] best) {
-        int value;
-        switch (candidate) {
-            case 0:
-                value = this.agent.board.getRowSpace(0);
-                break;
-            case 1:
-                value = this.agent.board.getRowSpace(1);
-                break;
-            case 2:
-                value = this.agent.board.getRowSpace(2);
-                break;
-            case 3:
-                value = this.agent.board.getColSpace(0);
-                break;
-            case 4:
-                value = this.agent.board.getColSpace(1);
-                break;
-            case 5:
-                value = this.agent.board.getColSpace(2);
-                break;
-            case 6:
-                //
-                break;
-            case 7:
-
-                break;
-        }
     }
 
     private int validateRow(int index) {
@@ -174,16 +157,6 @@ public class CyclicB extends CyclicBehaviour {
         System.out.println("\n-------------------------------------------------");
         for (int[] element : this.agent.board.cost) {
             for (int value : element) {
-                System.out.print("|\t" + value + "\t|");
-            }
-            System.out.println("\n-------------------------------------------------");
-        }
-    }
-    
-        public void printBoard2() {
-        System.out.println("\n-------------------------------------------------");
-        for (char[] element : this.agent.board.game) {
-            for (char value : element) {
                 System.out.print("|\t" + value + "\t|");
             }
             System.out.println("\n-------------------------------------------------");
