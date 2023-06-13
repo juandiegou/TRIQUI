@@ -2,6 +2,8 @@ package behaviours;
 
 import java.util.Random;
 
+import javax.swing.JOptionPane;
+
 import static java.lang.Math.abs;
 import com.google.gson.Gson;
 import jade.core.AID;
@@ -20,38 +22,27 @@ public class CyclicA extends CyclicBehaviour {
     private int[][] aux;
     AMachine agent;
     private ACLMessage message;
+    private String type;
 
-    public CyclicA(Agent agent, String idString, String address) {
+    public CyclicA(Agent agent, String idString, String address, String type) {
         super(agent);
         this.agent = (AMachine) agent;
         this.gson = new Gson();
         this.idString = idString;
         this.address = address;
+        this.type = type;
     }
-    
 
     @Override
     public void action() {
         if (firstMove) {
-            // primera jugada
-            int[] jugada = firstMove();
-            while (!this.agent.board.validateMark(jugada[0], jugada[1])) {
-                jugada = firstMove();
-            }
-            this.agent.board.setMark(jugada[0], jugada[1], 'X');
-            printBoard();
+            if(type.equals("R")){
+                onMove();
 
-            ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-            AID receptor = new AID(idString, AID.ISGUID); // "receptor@192.168.248.54:1099/JADE"
-            receptor.addAddresses(address); // "http://192.168.254.54:7778/acc"
-            msg.addReceiver(receptor);
-            try {
-                msg.setContent((String) gson.toJson(this.agent.board));
-                this.agent.send(msg);
-                firstMove = false;
-            } catch (Exception ex) {
-                ex.getStackTrace();
+            }else{
+                moving();
             }
+            firstMove= false;
         } else {
             ACLMessage response;
             try {
@@ -60,17 +51,58 @@ public class CyclicA extends CyclicBehaviour {
                 this.agent.board = (Board) gson.fromJson(response.getContent(), Board.class);
                 printBoard();
                 // calcular movimiento nuevo
-                this.getMove();
-                
-                message = new ACLMessage(ACLMessage.INFORM);
-                message.setContent((String) gson.toJson(this.agent.board, Board.class));
-                message.addReceiver(response.getSender());
-                this.agent.send(message);
-                printBoard2();
+                if(this.agent.board.checkBoard()){
+                    this.agent.removeBehaviour(this);
+                }else{
+                    this.getMove();
+                    this.sendMessage();
+                    //this.agent.send(message);
+                    printBoard2();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void onMove() {
+        // primera jugada
+        int[] jugada = firstMove();
+        while (!this.agent.board.validateMark(jugada[0], jugada[1])) {
+            jugada = firstMove();
+        }
+        this.agent.board.setMark(jugada[0], jugada[1], 'X');
+        printBoard();
+        sendMessage();
+    }
+
+    private void moving() {
+        String i = JOptionPane.showInputDialog(null,"Ingrese la cordenada X:");
+        String j = JOptionPane.showInputDialog(null,"Ingrese la cordenada Y:");
+        if(i != null && j !=null){
+            try{
+                int coordI = Integer.parseInt(i);
+                int coordJ = Integer.parseInt(j);
+                this.agent.board.setMark(coordI, coordJ, 'X');
+                printBoard();
+                sendMessage();
+                
+            }catch(NumberFormatException er){er.getStackTrace();
+            }catch (Exception ex) { ex.getStackTrace();}
+        }          
+        
+    }
+
+    public void sendMessage(){
+        try {
+            ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+            AID receptor = new AID(idString, AID.ISGUID); // "receptor@192.168.248.54:1099/JADE"
+            receptor.addAddresses(address); // "http://192.168.254.54:7778/acc"
+            msg.addReceiver(receptor);
+            msg.setContent((String) gson.toJson(this.agent.board));
+            this.agent.send(msg);
+            
+        } catch (Exception e) {e.getStackTrace();}
     }
 
     /**
@@ -79,14 +111,12 @@ public class CyclicA extends CyclicBehaviour {
     public int[] firstMove() {
         int valueI = new Random().nextInt(3);
         int ValueJ = new Random().nextInt(3);
-        return new int[] {valueI,ValueJ};
-        //return new int[] { 1, 1 };
+        return new int[] { valueI, ValueJ };
     }
 
     public void getMove() {
-        // int [] bestMove={0,0}
         int[][] maxim = getMaxim();
-        int valueBestMove =0;
+        int valueBestMove = 0;
 
         for (int i = 0; i < maxim.length; i++) {
             for (int j = 0; j < maxim[i].length; j++) {
@@ -94,51 +124,15 @@ public class CyclicA extends CyclicBehaviour {
             }
             System.out.println("");
         }
-        /**for(int []candidate : maxim){
-            validateCandidate(candidate, bestMove);
-        }
-        return bestMove;**/
         for (int i = 0; i < maxim.length; i++) {
             for (int j = 0; j < maxim[i].length; j++) {
-                
-                if(maxim[i][j]>valueBestMove){
-                    valueBestMove=maxim[i][j];
+
+                if (maxim[i][j] > valueBestMove) {
+                    valueBestMove = maxim[i][j];
                     this.agent.board.setMark(i, j, 'X');
                 }
             }
         }
-    }
-
-    private void validateCandidate(int candidate, int[][] best) {
-
-        int value;
-        switch (candidate) {
-            case 0:
-                value = this.agent.board.getRowSpace(0);
-                break;
-            case 1:
-                value = this.agent.board.getRowSpace(1);
-                break;
-            case 2:
-                value = this.agent.board.getRowSpace(2);
-                break;
-            case 3:
-                value = this.agent.board.getColSpace(0);
-                break;
-            case 4:
-                value = this.agent.board.getColSpace(1);
-                break;
-            case 5:
-                value = this.agent.board.getColSpace(2);
-                break;
-            case 6:
-                //
-                break;
-            case 7:
-
-                break;
-        }
-    
     }
 
     private int validateRow(int index) {

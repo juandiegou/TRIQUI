@@ -13,7 +13,7 @@ public class Main {
         
         Profile profile = new ProfileImpl("localhost",1099,"MAIN",true);    
         try {
-            AgentController agentController = runtime.createMainContainer(profile).createNewAgent("A", "models.AMachine",null );
+            AgentController agentController = runtime.createMainContainer(profile).createNewAgent("B", "models.BMachine",null );
             agentController.start();
         } catch (Exception ex) {
             ex.printStackTrace();

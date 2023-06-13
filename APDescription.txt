@@ -1,1 +1,1 @@
-( ap-description  :name "Main-Container" :ap-services (set ( ap-service  :name fipa.mts.mtp.http.std :type fipa.mts.mtp.http.std :addresses (sequence http://192.168.28.111:7778/acc))))
+( ap-description  :name "Main-Container" :ap-services (set ( ap-service  :name fipa.mts.mtp.http.std :type fipa.mts.mtp.http.std :addresses (sequence http://DESKTOP-DKRC4O5:7778/acc))))
