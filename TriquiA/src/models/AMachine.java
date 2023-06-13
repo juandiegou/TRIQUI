@@ -10,7 +10,7 @@ public class AMachine extends Agent{
 
     protected void setup(){
         board= new Board();
-        addBehaviour(new CyclicA(this,"B@192.168.28.113:1099/JADE","http://192.168.28.113:7778/acc"));
+        addBehaviour(new CyclicA(this,"B@192.168.1.66:1099/JADE","http://192.168.1.66:7778/acc"));
     }
 
 

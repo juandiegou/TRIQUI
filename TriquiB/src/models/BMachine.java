@@ -12,7 +12,7 @@ public class BMachine extends Agent{
     protected void setup(){
         board= new Board();
         //addBehaviour(new CyclicB(this,"receptor@192.168.113.179:1099/JADE","http://192.168.113.54:7778/acc"));
-        addBehaviour(new CyclicB(this,"A@192.168.28.59:1099/JADE","http://192.168.28.59:7778/acc"));
+        addBehaviour(new CyclicB(this,"A@192.168.109.54:1099/JADE","http://192.168.109.54:7778/acc"));
     }
 
 
